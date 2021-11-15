@@ -1,0 +1,13 @@
+== Tests Error ==
+Traceback (most recent call last):
+  File "/Users/felix/projects/adventofcode/common/aocdays.py", line 125, in run
+    test = self.test(input_data)
+  File "/Users/felix/projects/adventofcode/days/y2020/day23.py", line 10, in test
+    p1 = self.part1(self.test_input).__next__()
+  File "/Users/felix/projects/adventofcode/days/y2020/day23.py", line 20, in part1
+    circle = deque([int(x) for x in input_data])
+NameError: name 'deque' is not defined
+
+== Tests ran in 0.840 ms ==
+
+== NOT RUNNING PARTS BECAUSE OF TEST ERRORS ==

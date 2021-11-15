@@ -9,7 +9,13 @@ import importlib
 
 if __name__ == "__main__":
     run_everything = False
-    if len(sys.argv) >= 2:
+    
+    input = sys.argv.pop()
+    inputs = input.split(' ')
+    for i in inputs:
+        sys.argv.append(i)
+
+    if len(sys.argv) >= 2 and not sys.argv[1] == '':
         try:
             if sys.argv[1] == "all":
                 run_everything = True

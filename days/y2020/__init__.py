@@ -1,9 +1,17 @@
 import os
+import glob
 import sys
 import time
 import traceback
+from typing import Generator
+
 import requests
-from typing import Generator, List
+
+from common.aocdays import AOCDays
+
+modules = filter(lambda x: not x.startswith('_'), glob.glob(os.path.dirname(__file__) + "/*.py"))
+__all__ = [os.path.basename(f)[:-3] for f in modules]
+
 
 def day(day_number):
     def day_decorator(cls):
@@ -12,24 +20,6 @@ def day(day_number):
         return cls
     return day_decorator
 
-class AOCDays:
-    _instance = None
-    days = None
-
-    def __init__(self):
-        self.days = {i: [] for i in range(26)}
-
-    def add_day(self, number: int, cls: 'days.AOCDay') -> None:
-        self.days[number].append(cls)
-
-    def get_day(self, number: int) -> 'List[days.AOCDay]':
-        return self.days[number]
-
-    @classmethod
-    def get_instance(cls) -> 'AOCDays':
-        if not cls._instance:
-            cls._instance = AOCDays()
-        return cls._instance
 
 class AOCDay:
     creator = "Matthias"
@@ -52,20 +42,14 @@ class AOCDay:
         self.year = year
         self.day_number = day_number
         self.session_token = session_token
-
-        input_dir = f"inputs/y{year}"
-        if not os.path.isdir(input_dir):
-            os.mkdir(input_dir)
-
-        output_dir = f"outputs/y{year}"
-        if not os.path.isdir(output_dir):
-            os.mkdir(output_dir)
-
-        self.input_filename = "{}/day{}_{}".format(input_dir, self.day_number, "input")
+        self.input_filename = os.path.join(os.path.dirname(__file__),
+                                           "../inputs/{}/day{}_{}".format(self.year, self.day_number, "input"))
         if self.creator == "Matthias":
-            self.output_filename = "{}/day{}_{}".format(output_dir, self.day_number, "output")
+            self.output_filename = os.path.join(os.path.dirname(__file__),
+                                                "../outputs/{}/day{}_{}".format(self.year, self.day_number, "output"))
         else:
-            self.output_filename = "{}/day{}_{}_{}".format(output_dir, self.day_number, "output", self.creator)
+            self.output_filename = os.path.join(os.path.dirname(__file__),
+                                                "../outputs/{}/day{}_{}_{}".format(self.year, self.day_number, "output", self.creator))
 
     def log(self, msg):
         print(msg)
@@ -193,7 +177,7 @@ class AOCDay:
     def test(self) -> Generator:
         pass
 
-    def common(self, input_data) -> Generator:
+    def common(self) -> Generator:
         pass
 
     def part1(self, input_data) -> Generator:

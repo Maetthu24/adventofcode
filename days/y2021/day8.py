@@ -1,3 +1,4 @@
+from functools import reduce
 from common.aocdays import AOCDay, day
 
 DEBUG = True
@@ -28,92 +29,30 @@ gcafb gcf dcaebfg ecagb gf abcdeg gaef cafbge fdbac fegbdc | fgae cfgab fg bagce
     def part1(self, input_data):
         digits = [[x for x in y.split(' | ')[1].split(' ')] for y in input_data]
 
-        sum = 0
-        for line in digits:
-            for d in line:
-                if len(d) in [2,3,4,7]:
-                    sum += 1
-        
-        yield sum
+        yield reduce(lambda x1, y1: x1 + reduce(lambda x2, y2: x2 + 1 if len(y2) in [2,3,4,7] else x2, y1, 0), digits, 0)
 
     def part2(self, input_data):
-        sum = 0
-        for line in input_data:
-            sum += self.solve_line(line)
-        yield sum
+        yield reduce(lambda x, y: x + self.solve_line(y), input_data, 0)
     
     def solve_line(self, line):
-        pattern = [x for x in line.split(' | ')[0].split(' ')]
-        digits = [x for x in line.split(' | ')[1].split(' ')]
+        patterns = [frozenset(x) for x in line.split(' | ')[0].split(' ')]
+        digits = [frozenset(x) for x in line.split(' | ')[1].split(' ')]
 
-        mapping = {k: ['a', 'b', 'c', 'd', 'e', 'f', 'g'] for k in range(7)}
-        
-        one = set(next(filter(lambda x: len(x) == 2, pattern)))
-        seven = set(next(filter(lambda x: len(x) == 3, pattern)))
-        four = set(next(filter(lambda x: len(x) == 4, pattern)))
-        eight = set(next(filter(lambda x: len(x) == 7, pattern)))
-        
-        mapping[0] = list(seven - one)
-        mapping[1] = list(four - one)
-        mapping[3] = list(four - one)
-        mapping[2] = list(one)
-        mapping[5] = list(one)
+        five_patterns = [p for p in patterns if len(p) == 5]
+        six_patterns = [p for p in patterns if len(p) == 6]
 
-        one_1 = list(one)[0]
-        one_2 = list(one)[1]
+        solutions = dict()
+        solutions[1] = [p for p in patterns if len(p) == 2][0]
+        solutions[4] = [p for p in patterns if len(p) == 4][0]
+        solutions[7] = [p for p in patterns if len(p) == 3][0]
+        solutions[8] = [p for p in patterns if len(p) == 7][0]
+        solutions[3] = [p for p in five_patterns if p.issuperset(solutions[1])][0]
+        solutions[9] = [p for p in six_patterns if p.issuperset(solutions[4])][0]
+        solutions[6] = [p for p in six_patterns if len(p.intersection(solutions[1])) == 1][0]
+        solutions[5] = [p for p in five_patterns if len(p.intersection(solutions[6])) == 5][0]
+        solutions[2] = list(set(five_patterns).difference({solutions[3], solutions[5]}))[0]
+        solutions[0] = list(set(six_patterns).difference({solutions[9], solutions[6]}))[0]
 
-        res1 = list(filter(lambda x: one_1 in x and one_2 not in x, pattern))
-        res2 = list(filter(lambda x: one_1 not in x and one_2 in x, pattern))
-
-        if len(res2) == 1:
-            temp = res2
-            res2 = res1
-            res1 = temp
-        
-        two = set(res1[0])
-        five = set(res2[0])
-        six = set(res2[1])
-
-        if len(five) > len(six):
-            temp = six
-            six = five
-            five = temp
-        
-        mapping[4] = list(six - five)
-
-        mapping[6] = list(next(filter(lambda x: x not in mapping[0]
-        and x not in mapping[1]
-        and x not in mapping[2]
-        and x not in mapping[4], mapping[6])))
-
-        nine = set(next(filter(lambda x: len(x) == 6 and mapping[4][0] not in x, pattern)))
-
-        remaining = list(filter(lambda x: set(x) not in [one, two, four, five, six, seven, eight, nine], pattern))
-        three = set(next(filter(lambda x: len(x) == 5, remaining)))
-        zero = set(next(filter(lambda x: len(x) == 6, remaining)))
-
-        sum = ''
-        for digit in digits:
-            s = set(digit)
-            if s == zero:
-                sum += '0'
-            elif s == one:
-                sum += '1'
-            elif s == two:
-                sum += '2'
-            elif s == three:
-                sum += '3'
-            elif s == four:
-                sum += '4'
-            elif s == five:
-                sum += '5'
-            elif s == six:
-                sum += '6'
-            elif s == seven:
-                sum += '7'
-            elif s == eight:
-                sum += '8'
-            elif s == nine:
-                sum += '9'
-
-        return int(sum)
+        mappings = {v: k for k, v in solutions.items()}
+        number = ''.join([str(mappings[x]) for x in digits])
+        return int(number)

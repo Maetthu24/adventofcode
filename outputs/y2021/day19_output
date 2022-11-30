@@ -1,0 +1,11 @@
+== Tests Error ==
+Traceback (most recent call last):
+  File "/Users/felix/projects/adventofcode/common/aocdays.py", line 125, in run
+    test = self.test(input_data)
+  File "/Users/felix/projects/adventofcode/days/y2021/day19.py", line 149, in test
+    assert p1 == 79, f'{p1} != 79'
+AssertionError: 109 != 79
+
+== Tests ran in 459.090 ms ==
+
+== NOT RUNNING PARTS BECAUSE OF TEST ERRORS ==
